@@ -162,3 +162,4 @@ cython_debug/
 # Project files
 mimic-iii-clinical-database-demo-1.4
 arquivo.csv
+common_columns_in_files.csv
