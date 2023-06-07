@@ -16,5 +16,7 @@ for filename in os.scandir(FILEPATH):
 
 
 df = pd.DataFrame(common_columns.items(), columns=["columns","files"])
+df = df.sort_values(by="files", key=lambda file: file.str.len(), ascending=False)
+
 
 df.to_csv('common_columns_in_files.csv')
