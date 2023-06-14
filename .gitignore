@@ -163,3 +163,4 @@ cython_debug/
 mimic-iii-clinical-database-demo-1.4
 arquivo.csv
 common_columns_in_files.csv
+src/data_treatment/latest_lab_results.csv
