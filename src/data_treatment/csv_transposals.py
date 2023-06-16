@@ -16,18 +16,32 @@ lab_res_frequencies = lab_result.value_counts('itemid').to_dict()
 # performance improvement
 common_lab_results = [exam for exam, count in lab_res_frequencies.items() if count == 100]
 
+# update lab_result with only the common exams
+lab_result = lab_result.loc[lab_result['itemid'].isin(common_lab_results)]
+
 # use value counts to get all the unique codes to a dict and convert the keys (codes) to a list
 diagnoses_list = list(diagnoses.value_counts('icd9_code').to_dict().keys())
+patients_codes = list(diagnoses.value_counts('subject_id').to_dict().keys())
 
-patients_exams = pd.DataFrame(index=[], columns=(['subject_id']+common_lab_results+diagnoses_list)).iloc[:0]
+# create a dataframe to create the database
+patients_db = pd.DataFrame(index=range(100), columns=(['subject_id']+common_lab_results+diagnoses_list))
 
-print(patients_exams)
+# populate the dataframe with one patient for each row
+for idx, patient in patients_db.iterrows():
+    patient['subject_id'] = patients_codes[idx]
 
-for _, patient_diagnose in lab_result.iterrows():
-    if not patients_exams.loc[patients_exams['subject_id'].item() == 10006]:
-        patients_exams.loc[len(patients_exams.index)] = pd.Series(patients_exams.columns)
 
-print(patients_exams)
-        
+# iterate
+for idx, patient in patients_db.iterrows():
+    patient_exams = lab_result.loc[lab_result['subject_id'] == patient['subject_id']]
+    patient_diagnoses = diagnoses.loc[diagnoses['subject_id'] == patient['subject_id']]
 
-# TODO expand patients_exams dataframe to have the diseases columns to use in the model
+    for _, exams in patient_exams.iterrows():
+        patients_db.at[idx, exams['itemid']] = exams['value']
+
+    for _, diagnostic in patient_diagnoses.iterrows():
+        patients_db.at[idx, diagnostic['icd9_code']] = 1
+
+patients_db = patients_db.fillna(0)
+
+patients_db.to_csv('patients_database.csv')
