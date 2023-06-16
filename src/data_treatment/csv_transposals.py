@@ -1,21 +1,33 @@
 import pandas as pd
 
+DATA_PATH = "../../mimic-iii-clinical-database-demo-1.4"
 LATEST_RESULTS_PATH = "latest_lab_results.csv"
+DIAGNOSES_PATH = f"{DATA_PATH}/DIAGNOSES_ICD.csv"
 
 lab_result = pd.read_csv(LATEST_RESULTS_PATH, index_col=[0])
+diagnoses = pd.read_csv(DIAGNOSES_PATH, index_col=[0])
 
-frequencies = lab_result.value_counts('itemid').to_frame()
+# use value counts to count every occurence of a lab exam and put it into a dictionary
+lab_res_frequencies = lab_result.value_counts('itemid').to_dict()
 
-common_lab_results = [exam_occurence.name for _, exam_occurence in frequencies.iterrows() if exam_occurence['count'] == 100]
+# iterate through the dictionary and get only the common ones between every patient
+# you can use loc with a lambda function in the previous value_counts to filter the common 
+# ones between every patient but it makes the code less readable and there's no significant 
+# performance improvement
+common_lab_results = [exam for exam, count in lab_res_frequencies.items() if count == 100]
 
-filtered_lab_results = pd.DataFrame(index=lab_result.index, columns=lab_result.columns).iloc[:0]
+# use value counts to get all the unique codes to a dict and convert the keys (codes) to a list
+diagnoses_list = list(diagnoses.value_counts('icd9_code').to_dict().keys())
 
-for index, row in lab_result.iterrows():
-   if row['itemid'] in common_lab_results:
-      filtered_lab_results.loc[len(filtered_lab_results)] = row
+patients_exams = pd.DataFrame(index=[], columns=(['subject_id']+common_lab_results+diagnoses_list)).iloc[:0]
 
+print(patients_exams)
 
-patients_exams = pd.DataFrame(index=filtered_lab_results.index, columns=(['subject_id']+common_lab_results)).iloc[:0]
+for _, patient_diagnose in lab_result.iterrows():
+    if not patients_exams.loc[patients_exams['subject_id'].item() == 10006]:
+        patients_exams.loc[len(patients_exams.index)] = pd.Series(patients_exams.columns)
+
+print(patients_exams)
+        
 
 # TODO expand patients_exams dataframe to have the diseases columns to use in the model
-# TODO add the patient id, exam results and diagnosed diseases to patients_exams dataframe
