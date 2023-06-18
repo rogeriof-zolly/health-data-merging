@@ -20,7 +20,9 @@ common_lab_results = [exam for exam, count in lab_res_frequencies.items() if cou
 lab_result = lab_result.loc[lab_result['itemid'].isin(common_lab_results)]
 
 # use value counts to get all the unique codes to a dict and convert the keys (codes) to a list
-diagnoses_list = list(diagnoses.value_counts('icd9_code').to_dict().keys())
+diagnoses_list = list(diagnoses.value_counts('icd9_code')
+                      .loc[lambda numDiagnostics: numDiagnostics > 20]
+                      .to_dict().keys())
 patients_codes = list(diagnoses.value_counts('subject_id').to_dict().keys())
 
 # create a dataframe to create the database
