@@ -1,4 +1,4 @@
-# health-data-merging
+# tensorflow-diseases-ml
 This is a college work for the Advanced Artificial Intelligence discipline to develop on neural networks. The idea is to use health data from PhysioNet repository to analyse patients' exams and pass them through a neural network that should give the correct illness as output. This project aims to treat the data and create a ML model with Tensorflow
 
 # requirements
